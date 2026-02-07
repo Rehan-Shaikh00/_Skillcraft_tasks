@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stopwatch Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .stopwatch {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    #display {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .controls button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    #laps {
+      list-style: none;
+      padding: 0;
+      margin-top: 15px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    #laps li {
+      padding: 5px 0;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stopwatch">
+    <h1 id="display">00:00:00</h1>
+
+    <div class="controls">
+      <button id="startPause">Start</button>
+      <button id="lap">Lap</button>
+      <button id="reset">Reset</button>
+    </div>
+
+    <ul id="laps"></ul>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let interval;
+    let running = false;
+    let lapCount = 1;
+
+    const display = document.getElementById("display");
+    const startPauseBtn = document.getElementById("startPause");
+    const resetBtn = document.getElementById("reset");
+    const lapBtn = document.getElementById("lap");
+    const laps = document.getElementById("laps");
+
+    function updateDisplay() {
+      const time = Date.now() - startTime + elapsedTime;
+
+      const minutes = Math.floor(time / 60000);
+      const seconds = Math.floor((time % 60000) / 1000);
+      const milliseconds = Math.floor((time % 1000) / 10);
+
+      display.textContent =
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0") + ":" +
+        String(milliseconds).padStart(2, "0");
+    }
+
+    startPauseBtn.addEventListener("click", () => {
+      if (!running) {
+        startTime = Date.now();
+        interval = setInterval(updateDisplay, 10);
+        startPauseBtn.textContent = "Pause";
+        running = true;
+      } else {
+        clearInterval(interval);
+        elapsedTime += Date.now() - startTime;
+        startPauseBtn.textContent = "Start";
+        running = false;
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      clearInterval(interval);
+      running = false;
+      startTime = 0;
+      elapsedTime = 0;
+      lapCount = 1;
+      display.textContent = "00:00:00";
+      startPauseBtn.textContent = "Start";
+      laps.innerHTML = "";
+    });
+
+    lapBtn.addEventListener("click", () => {
+      if (!running) return;
+
+      const li = document.createElement("li");
+      li.textContent = `Lap ${lapCount++}: ${display.textContent}`;
+      laps.appendChild(li);
+    });
+  </script>
+
+</body>
+</html>
