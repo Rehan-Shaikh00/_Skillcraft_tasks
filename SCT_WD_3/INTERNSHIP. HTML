@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interactive Quiz Game</title>
+<style>
+body{font-family:Arial;background:#0f172a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh}
+.card{background:#1e293b;padding:20px;border-radius:16px;width:320px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+button{background:#38bdf8;border:none;padding:10px;border-radius:8px;width:100%;cursor:pointer;font-size:16px}
+input{margin-right:6px}
+</style>
+</head>
+<body>
+<div class="card">
+<h2 id="q"></h2>
+<div id="options"></div>
+<input id="fill" style="display:none;width:100%;padding:6px"/>
+<button onclick="next()">Next</button>
+<p id="result"></p>
+</div><script>
+const questions=[
+{type:'single',q:'Capital of India?',options:['Delhi','Mumbai','Chennai'],ans:[0]},
+{type:'multi',q:'Select prime numbers',options:['2','4','5'],ans:[0,2]},
+{type:'fill',q:'5 + 5 = ?',ans:'10'}
+];
+let step=0,score=0,selected=[];
+const qEl=document.getElementById('q');
+const optEl=document.getElementById('options');
+const fill=document.getElementById('fill');
+const result=document.getElementById('result');
+
+function load(){
+ if(step>=questions.length){
+  qEl.innerText='Quiz Finished';
+  optEl.innerHTML='';
+  fill.style.display='none';
+  result.innerText=`Score: ${score}/${questions.length}`;
+  return;
+ }
+ const q=questions[step];
+ qEl.innerText=q.q;
+ optEl.innerHTML='';
+ selected=[];
+ fill.style.display=q.type==='fill'?'block':'none';
+ if(q.type!=='fill'){
+  q.options.forEach((op,i)=>{
+    const d=document.createElement('div');
+    d.innerHTML=`<input type="${q.type==='single'?'radio':'checkbox'}" name="opt" onchange="select(${i},'${q.type}')"> ${op}`;
+    optEl.appendChild(d);
+  });
+ }
+}
+
+function select(i,type){
+ if(type==='single') selected=[i];
+ else selected.includes(i)?selected=selected.filter(x=>x!==i):selected.push(i);
+}
+
+function next(){
+ const q=questions[step];
+ let ok=false;
+ if(q.type==='fill') ok=fill.value.trim()==q.ans;
+ else ok=JSON.stringify(selected.sort())===JSON.stringify(q.ans);
+ if(ok) score++;
+ fill.value='';
+ step++;load();
+}
+
+load();
+</script></body>
+</html>
